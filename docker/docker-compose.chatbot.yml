@@ -1,0 +1,17 @@
+services:
+  # Chatbot
+  chatbot:
+    build:
+      context: ../../../docker # Directory containing Dockerfile
+      dockerfile: ../../../docker/Dockerfile # Assuming your Dockerfile's name is Dockerfile
+    ports:
+      - "8082:8082" # Map port 8082 for REST API
+      - "9090:9090" # Map port 9090 for Main GRPC
+      - "9095:9095" # Map port 9095 for Waifu GRPC
+    volumes:
+      - ./logs:/usr/src/app/logs # Optional: bind mount for logs if your app logs to files
+    # Optional: Define commands or override the CMD defined in Dockerfile
+    # command: "node dist/Runner.js"
+
+volumes:
+  postgres-data:

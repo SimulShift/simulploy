@@ -1,0 +1,31 @@
+services:
+  # ENVOY REVERSE PROXY
+  envoy-prod:
+    profiles:
+      - production
+      - linux
+    image: envoyproxy/envoy:latest
+    volumes:
+      - ./envoy/envoy-production.yaml:/etc/envoy/envoy.yaml
+      - /etc/letsencrypt:/etc/letsencrypt
+    ports:
+      - "443:443"        # Port for HTTPS traffic
+      - "9901:9901"      # Port for Envoy's admin interface
+      - "9902:9902"      # Port for rest api
+    restart: unless-stopped
+  envoy-dev-windows:
+    profiles:
+      - windows
+      - development
+    image: envoyproxy/envoy:latest
+    volumes:
+      - ./envoy/envoy-development.yaml:/etc/envoy/envoy.yaml
+    labels:
+      - "com.simulshift.description=Envoy Development Build"
+      - "com.simulshift.version=1.0.0-dev"
+    ports:
+      - "8080:8080"      # Port for HTTP traffic
+      - "9901:9901"      # Port for Envoy's admin interface
+      - "9902:9902"      # Port for rest api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
