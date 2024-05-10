@@ -1,4 +1,4 @@
-package simulploy
+package main
 
 import (
 	"os"

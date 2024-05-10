@@ -1,4 +1,4 @@
-package simulploy
+package main
 
 // write main function
 func main() {
