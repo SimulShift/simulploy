@@ -1,6 +1,7 @@
-package main
+package egg
 
 import (
+	"log"
 	"os"
 )
 
@@ -36,7 +37,6 @@ type Docker struct {
 // NewDocker creates a manager for Docker services.
 func NewDocker() *Docker {
 	executor := NewEgg(os.Stdout)
-	executor.AddArg("docker")
 	executor.AddArg("compose")
 
 	return &Docker{
@@ -67,14 +67,20 @@ func (docker *Docker) Detached() *Docker {
 	return docker
 }
 
+func (docker *Docker) AddDockerComposeFile(filepath string) *Docker {
+	docker.egg.AddArg("-f")
+	docker.egg.AddArg(filepath)
+	return docker
+}
+
 // Compose - runs the Docker Compose command.
 func (docker *Docker) Compose() {
-	// add the filepath with -f
-	docker.egg.AddArg("-f")
-	docker.egg.AddArg("docker-compose.yml")
+	docker.egg.SetPath("docker")
 
 	// run the egg
 	if !docker.egg.Run() {
+		// log error
+		log.Println("Error running Docker Compose for: " + docker.egg.String())
 		os.Exit(1)
 	}
 

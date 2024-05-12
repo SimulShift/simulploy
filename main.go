@@ -1,9 +1,11 @@
 package main
 
+import "github.com/simulshift/simulploy/egg"
+
 // write main function
 func main() {
 	// create a new Docker instance
-	docker := NewDocker()
+	docker := egg.NewDocker()
 	// start the Docker services
-	docker.Down().SetClean(true).Compose()
+	docker.AddDockerComposeFile("docker/docker-compose.postgres.yaml").Down().SetClean(true).Compose()
 }

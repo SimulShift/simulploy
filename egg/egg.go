@@ -1,9 +1,10 @@
-package main
+package egg
 
 import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // CommandExecutor provides a generalized way to execute system commands using a builder pattern.
@@ -42,20 +43,18 @@ func (ce *CommandExecutor) AddArg(arg string) *CommandExecutor {
 
 // Run executes the constructed command.
 func (ce *CommandExecutor) Run() bool {
-	var command []string
-	if ce.sudo {
-		command = append(command, "sudo")
-	}
-	command = append(command, "bash", ce.scriptPath)
-	command = append(command, ce.args...)
-
-	cmd := exec.Command(command[0], command[1:]...)
+	cmd := exec.Command(ce.scriptPath, ce.args...)
 	cmd.Stdout = ce.output
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error running script: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error running script: %v for command %s and args: "+
+			"%s", err, ce.scriptPath, strings.Join(ce.args, " ")+"\n")
 		return false
 	}
 	return true
+}
+
+func (ce *CommandExecutor) String() string {
+	return fmt.Sprintf("%v %v", ce.scriptPath, ce.args)
 }

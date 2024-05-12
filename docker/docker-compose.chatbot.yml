@@ -12,6 +12,3 @@ services:
       - ./logs:/usr/src/app/logs # Optional: bind mount for logs if your app logs to files
     # Optional: Define commands or override the CMD defined in Dockerfile.chatbot
     # command: "node dist/Runner.js"
-
-volumes:
-  postgres-data:

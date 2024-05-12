@@ -16,12 +16,13 @@
  *
  */
 
-// Package main implements a client for Greeter service.
-package main
+// Package greeter_client implements a client for Greeter service.
+package greeter_client
 
 import (
 	"context"
 	"flag"
+	"google.golang.org/grpc"
 	"log"
 	"time"
 )
@@ -35,7 +36,7 @@ var (
 	name = flag.String("name", defaultName, "Name to greet")
 )
 
-func main() {
+func GreeterClient() {
 	flag.Parse()
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
