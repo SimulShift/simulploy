@@ -21,6 +21,13 @@ var ServiceYamlMap = map[Service]string{
 	ChatbotProd:     ChatbotYaml,
 }
 
+// MetaserviceToYaml Map meta services to file
+var MetaserviceToYaml = map[MetaService]string{
+	Postgres: PostgresYaml,
+	Envoy:    EnvoyYaml,
+	Chatbot:  ChatbotYaml,
+}
+
 type MetaService string
 
 const (
@@ -29,19 +36,6 @@ const (
 	Envoy    MetaService = "envoy"
 	Chatbot  MetaService = "chatbot"
 )
-
-// MetaserviceToYaml Map meta services to file
-var MetaserviceToYaml = map[MetaService]string{
-	Postgres: PostgresYaml,
-	Envoy:    EnvoyYaml,
-	Chatbot:  ChatbotYaml,
-}
-
-var MetaserviceToServices = map[MetaService][]Service{
-	Postgres: {PostgresDev, PostgresProd},
-	Envoy:    {EnvoyDevWindows, EnvoyProd},
-	Chatbot:  {ChatbotProd},
-}
 
 type Profile string
 
@@ -58,13 +52,6 @@ var ValidProfiles = []Profile{
 	Development,
 	Production,
 	Linux,
-}
-
-// ProfileToServices Map of profiles to services
-var ProfileToServices = map[Profile][]Service{
-	Development: {PostgresDev, EnvoyDevWindows},
-	Production:  {PostgresProd, EnvoyProd, ChatbotProd},
-	Linux:       {PostgresProd, EnvoyProd, ChatbotProd},
 }
 
 type Service string
@@ -87,12 +74,21 @@ var ValidServices = []Service{
 	EnvoyDevWindows,
 }
 
+type Direction string
+
+const (
+	DirectionUnset Direction = "unset"
+	Up             Direction = "up"
+	Down           Direction = "down"
+)
+
 // Docker handles Docker Compose operations.
 type Docker struct {
 	egg         *Egg
 	services    []Service
 	profile     Profile
 	MetaService MetaService
+	Direction   Direction
 	clean       bool
 }
 
@@ -106,6 +102,7 @@ func NewDocker() *Docker {
 		services:    make([]Service, 0), // empty slice
 		profile:     ProfileUnset,
 		MetaService: Unset,
+		Direction:   DirectionUnset,
 		clean:       false,
 	}
 }
@@ -124,13 +121,6 @@ func (docker *Docker) SetMetaService(metaservice MetaService) *Docker {
 		os.Exit(1)
 	}
 	docker.addYamlIfNotAlreadyAdded(MetaserviceToYaml[metaservice])
-	// add the services corresponding to the metaservice
-	for _, service := range MetaserviceToServices[metaservice] {
-		// Add the intersection of the services for the profile and the metaservice
-		if slices.Contains(ProfileToServices[docker.profile], service) {
-			docker.AddService(service)
-		}
-	}
 	return docker
 }
 
@@ -156,7 +146,7 @@ func (docker *Docker) SetClean(clean bool) *Docker {
 
 // Up - starts Docker Compose services with an option to clean them first.
 func (docker *Docker) Up() *Docker {
-	docker.egg.AddArg("up")
+	docker.Direction = Up
 	return docker
 }
 
@@ -181,6 +171,11 @@ func (docker *Docker) AddDockerComposeFile(filepath string) *Docker {
 func (docker *Docker) Compose() {
 	docker.egg.SetPath("docker")
 
+	// add services
+	for _, service := range docker.services {
+		docker.egg.AddArg(string(service))
+	}
+
 	// set profile
 	if docker.profile == ProfileUnset {
 		log.Println("Profile must be set before running Docker Compose")
@@ -190,6 +185,11 @@ func (docker *Docker) Compose() {
 	// add the profile to the command
 	docker.egg.AddArg("--profile")
 	docker.egg.AddArg(string(docker.profile))
+
+	// add the direction to the command
+	if docker.Direction != DirectionUnset {
+		docker.egg.AddArg(string(docker.Direction))
+	}
 
 	if true {
 		log.Println("Running Docker Compose for: " + docker.egg.String())
@@ -202,6 +202,7 @@ func (docker *Docker) Compose() {
 		os.Exit(1)
 	}
 
+	/* TODO: Add clean up for volumes
 	if docker.clean && docker.egg.args[1] == "down" {
 		// run "docker volume rm docker_postgres-data"
 		cleanEgg := NewEgg(os.Stdout)
@@ -213,4 +214,5 @@ func (docker *Docker) Compose() {
 			os.Exit(1)
 		}
 	}
+	*/
 }
