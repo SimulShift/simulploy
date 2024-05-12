@@ -6,7 +6,6 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_DB: simulshift.com
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -22,7 +21,6 @@ services:
     command: -c config_file=/etc/postgresql/postgresql.conf
     environment:
       POSTGRES_DB: simulshift.com
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - /etc/letsencrypt/live/backend.simulshift.com/fullchain-docker.pem:/var/lib/postgresql/server.crt:ro

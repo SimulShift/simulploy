@@ -3,7 +3,45 @@ package egg
 import (
 	"log"
 	"os"
+	"slices"
 )
+
+var debug = false
+
+var PostgresYaml = "docker/docker-compose.postgres.yaml"
+var EnvoyYaml = "docker/docker-compose.envoy.yaml"
+var ChatbotYaml = "docker/docker-compose.chatbot.yaml"
+
+// ServiceYamlMap map of services to their respective docker-compose files
+var ServiceYamlMap = map[Service]string{
+	PostgresDev:     PostgresYaml,
+	PostgresProd:    PostgresYaml,
+	EnvoyDevWindows: EnvoyYaml,
+	EnvoyProd:       EnvoyYaml,
+	ChatbotProd:     ChatbotYaml,
+}
+
+type MetaService string
+
+const (
+	Unset    MetaService = "unset"
+	Postgres MetaService = "postgres"
+	Envoy    MetaService = "envoy"
+	Chatbot  MetaService = "chatbot"
+)
+
+// MetaserviceToYaml Map meta services to file
+var MetaserviceToYaml = map[MetaService]string{
+	Postgres: PostgresYaml,
+	Envoy:    EnvoyYaml,
+	Chatbot:  ChatbotYaml,
+}
+
+var MetaserviceToServices = map[MetaService][]Service{
+	Postgres: {PostgresDev, PostgresProd},
+	Envoy:    {EnvoyDevWindows, EnvoyProd},
+	Chatbot:  {ChatbotProd},
+}
 
 type Profile string
 
@@ -14,25 +52,49 @@ const (
 	Linux        Profile = "linux"
 )
 
+// ValidProfiles Define an array of valid profiles
+var ValidProfiles = []Profile{
+	ProfileUnset, // You can include this if it's a valid profile to use
+	Development,
+	Production,
+	Linux,
+}
+
+// ProfileToServices Map of profiles to services
+var ProfileToServices = map[Profile][]Service{
+	Development: {PostgresDev, EnvoyDevWindows},
+	Production:  {PostgresProd, EnvoyProd, ChatbotProd},
+	Linux:       {PostgresProd, EnvoyProd, ChatbotProd},
+}
+
 type Service string
 
 const (
 	ServiceUnset    Service = "unset"
-	postgresDev     Service = "postgres-dev"
-	postgresProd    Service = "postgres-prod"
-	envoyProd       Service = "envoy-prod"
-	envoyDevWindows Service = "envoy-dev-windows"
+	PostgresDev     Service = "postgres-dev"
+	PostgresProd    Service = "postgres-prod"
+	EnvoyProd       Service = "envoy-prod"
+	EnvoyDevWindows Service = "envoy-dev-windows"
+	ChatbotProd     Service = "chatbot-prod"
 )
+
+// ValidServices Define an array of valid services
+var ValidServices = []Service{
+	ServiceUnset, // You can include this if it's a valid services to use
+	PostgresDev,
+	PostgresProd,
+	EnvoyProd,
+	EnvoyDevWindows,
+}
 
 // Docker handles Docker Compose operations.
 type Docker struct {
-	egg   *CommandExecutor
-	clean bool
+	egg         *Egg
+	services    []Service
+	profile     Profile
+	MetaService MetaService
+	clean       bool
 }
-
-//const postgresYaml =
-
-// file paths
 
 // NewDocker creates a manager for Docker services.
 func NewDocker() *Docker {
@@ -40,8 +102,50 @@ func NewDocker() *Docker {
 	executor.AddArg("compose")
 
 	return &Docker{
-		egg: executor,
+		egg:         executor,
+		services:    make([]Service, 0), // empty slice
+		profile:     ProfileUnset,
+		MetaService: Unset,
+		clean:       false,
 	}
+}
+
+// AddYamlIfNotAlreadyAdded adds the yaml file to the commands if it's not already added.
+func (docker *Docker) addYamlIfNotAlreadyAdded(yaml string) {
+	if !slices.Contains(docker.egg.args, yaml) {
+		docker.AddDockerComposeFile(yaml)
+	}
+}
+
+func (docker *Docker) SetMetaService(metaservice MetaService) *Docker {
+	// environment must first be set
+	if docker.profile == ProfileUnset {
+		log.Println("Profile must be set before setting metaservice")
+		os.Exit(1)
+	}
+	docker.addYamlIfNotAlreadyAdded(MetaserviceToYaml[metaservice])
+	// add the services corresponding to the metaservice
+	for _, service := range MetaserviceToServices[metaservice] {
+		// Add the intersection of the services for the profile and the metaservice
+		if slices.Contains(ProfileToServices[docker.profile], service) {
+			docker.AddService(service)
+		}
+	}
+	return docker
+}
+
+func (docker *Docker) AddService(service Service) *Docker {
+	docker.services = append(docker.services, service)
+	// get the docker-compose file for the services
+	if yaml, ok := ServiceYamlMap[service]; ok {
+		docker.addYamlIfNotAlreadyAdded(yaml)
+	}
+	return docker
+}
+
+func (docker *Docker) SetProfile(profile Profile) *Docker {
+	docker.profile = profile
+	return docker
 }
 
 // SetClean sets the clean flag for the Docker Compose services.
@@ -76,6 +180,20 @@ func (docker *Docker) AddDockerComposeFile(filepath string) *Docker {
 // Compose - runs the Docker Compose command.
 func (docker *Docker) Compose() {
 	docker.egg.SetPath("docker")
+
+	// set profile
+	if docker.profile == ProfileUnset {
+		log.Println("Profile must be set before running Docker Compose")
+		os.Exit(1)
+	}
+
+	// add the profile to the command
+	docker.egg.AddArg("--profile")
+	docker.egg.AddArg(string(docker.profile))
+
+	if true {
+		log.Println("Running Docker Compose for: " + docker.egg.String())
+	}
 
 	// run the egg
 	if !docker.egg.Run() {

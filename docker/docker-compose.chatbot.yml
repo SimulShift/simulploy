@@ -1,6 +1,9 @@
 services:
   # Chatbot
-  chatbot:
+  chatbot-prod:
+    profiles:
+      - production
+      - linux
     build:
       context: ../../../docker # Directory containing Dockerfile.chatbot
       dockerfile: ../../../docker/Dockerfile.chatbot # Assuming your Dockerfile.chatbot's name is Dockerfile.chatbot
