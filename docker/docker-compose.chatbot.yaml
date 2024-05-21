@@ -6,8 +6,7 @@ services:
       - production
       - linux
     build:
-      context: ../../simulchatbot # Directory containing Dockerfile.chatbot
-      dockerfile: ../simulploy/docker/Dockerfile.chatbot # Assuming your Dockerfile.chatbot's name is Dockerfile.chatbot
+      context: ${SIMULCHATBOT_PATH} # Directory containing Dockerfile.chatbot
     ports:
       - "8080:8080" # Map port 8080 for REST API
       - "9090:9090" # Map port 9090 for Main GRPC
@@ -16,3 +15,5 @@ services:
       - ./logs:/usr/src/app/logs # Optional: bind mount for logs if your app logs to files
     # Optional: Define commands or override the CMD defined in Dockerfile.chatbot
     command: "node dist/Runner.js --start-fastify"
+    env_file:
+      - ${SIMULCHATBOT_PATH}/.env # Path to your .env file
