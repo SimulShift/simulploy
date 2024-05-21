@@ -2,8 +2,11 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/simulshift/simulploy
+    default: github.com/simulshift/simulploy/gen
 plugins:
   - plugin: go # requires protoc-gen-go in path
-    out: generated
+    out: gen
+    opt: paths=source_relative
+  - plugin: go-grpc # requires protoc-gen-go-grpc in path
+    out: gen
     opt: paths=source_relative

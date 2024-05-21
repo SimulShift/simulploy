@@ -1,17 +1,18 @@
 services:
   # Chatbot
   chatbot-prod:
+    image: alexpena/simulchatbot:latest
     profiles:
       - production
       - linux
     build:
-      context: ../../../docker # Directory containing Dockerfile.chatbot
-      dockerfile: ../../../docker/Dockerfile.chatbot # Assuming your Dockerfile.chatbot's name is Dockerfile.chatbot
+      context: ../../simulchatbot # Directory containing Dockerfile.chatbot
+      dockerfile: ../simulploy/docker/Dockerfile.chatbot # Assuming your Dockerfile.chatbot's name is Dockerfile.chatbot
     ports:
-      - "8082:8082" # Map port 8082 for REST API
+      - "8080:8080" # Map port 8080 for REST API
       - "9090:9090" # Map port 9090 for Main GRPC
       - "9095:9095" # Map port 9095 for Waifu GRPC
     volumes:
       - ./logs:/usr/src/app/logs # Optional: bind mount for logs if your app logs to files
     # Optional: Define commands or override the CMD defined in Dockerfile.chatbot
-    # command: "node dist/Runner.js"
+    command: "node dist/Runner.js --start-fastify"

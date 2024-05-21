@@ -6,8 +6,6 @@ import (
 	"slices"
 )
 
-var debug = false
-
 var PostgresYaml = "docker/docker-compose.postgres.yaml"
 var EnvoyYaml = "docker/docker-compose.envoy.yaml"
 var ChatbotYaml = "docker/docker-compose.chatbot.yaml"
@@ -120,6 +118,11 @@ func (docker *Docker) SetMetaService(metaservice MetaService) *Docker {
 		log.Println("Profile must be set before setting metaservice")
 		os.Exit(1)
 	}
+	if MetaserviceToYaml[metaservice] == "" {
+		log.Println("Invalid metaservice provided")
+		os.Exit(1)
+	}
+	log.Println("Setting metaservice: ", MetaserviceToYaml[metaservice])
 	docker.addYamlIfNotAlreadyAdded(MetaserviceToYaml[metaservice])
 	return docker
 }
@@ -138,9 +141,9 @@ func (docker *Docker) SetProfile(profile Profile) *Docker {
 	return docker
 }
 
-// SetClean sets the clean flag for the Docker Compose services.
-func (docker *Docker) SetClean(clean bool) *Docker {
-	docker.clean = clean
+// Clean sets the clean flag for the Docker Compose services.
+func (docker *Docker) Clean() *Docker {
+	docker.clean = true
 	return docker
 }
 
@@ -152,7 +155,7 @@ func (docker *Docker) Up() *Docker {
 
 // Down - stops Docker Compose services.
 func (docker *Docker) Down() *Docker {
-	docker.egg.AddArg("down")
+	docker.Direction = Down
 	return docker
 }
 
@@ -191,8 +194,17 @@ func (docker *Docker) Compose() {
 		docker.egg.AddArg(string(docker.Direction))
 	}
 
-	if true {
+	if os.Getenv("LOG_LEVEL") == "debug" {
 		log.Println("Running Docker Compose for: " + docker.egg.String())
+	}
+
+	if docker.clean {
+		if docker.MetaService == Postgres {
+			docker.DropDatabase()
+		} else {
+			docker.egg.AddArg("--rmi")
+			docker.egg.AddArg("all")
+		}
 	}
 
 	// run the egg
@@ -202,17 +214,16 @@ func (docker *Docker) Compose() {
 		os.Exit(1)
 	}
 
-	/* TODO: Add clean up for volumes
-	if docker.clean && docker.egg.args[1] == "down" {
-		// run "docker volume rm docker_postgres-data"
-		cleanEgg := NewEgg(os.Stdout)
-		cleanEgg.AddArg("docker")
-		cleanEgg.AddArg("volume")
-		cleanEgg.AddArg("rm")
-		cleanEgg.AddArg("docker_postgres-data")
-		if !cleanEgg.Run() {
-			os.Exit(1)
-		}
+}
+
+func (docker *Docker) DropDatabase() {
+	// run "docker volume rm docker_postgres-data"
+	cleanEgg := NewEgg(os.Stdout)
+	cleanEgg.AddArg("docker")
+	cleanEgg.AddArg("volume")
+	cleanEgg.AddArg("rm")
+	cleanEgg.AddArg("docker_postgres-data")
+	if !cleanEgg.Run() {
+		os.Exit(1)
 	}
-	*/
 }

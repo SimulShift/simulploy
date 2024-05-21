@@ -44,7 +44,7 @@ func (egg *Egg) AddArg(arg string) *Egg {
 // Run executes the constructed command.
 func (egg *Egg) Run() bool {
 	cmd := exec.Command(egg.scriptPath, egg.args...)
-	cmd.Stdout = egg.output
+	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {

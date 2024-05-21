@@ -10,11 +10,17 @@ COPY package*.json ./
 # Install your project dependencies
 RUN npm install
 
+# to resolve path aliases
+RUN npm install -g tsc-alias
+
 # Copy your application code and any other necessary files
-COPY ../../../docker .
+COPY . .
+
+RUN npx buf generate
 
 # Build the application
 RUN npm run build
+
 
 # Start a new stage from scratch for a cleaner, smaller image
 FROM node:20
