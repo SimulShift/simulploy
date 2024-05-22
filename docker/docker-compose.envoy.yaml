@@ -6,7 +6,7 @@ services:
       - linux
     image: envoyproxy/envoy:latest
     volumes:
-      - ./envoy/envoy-production.yaml:/etc/envoy/envoy.yaml
+      - ../envoy/envoy-production.yaml:/etc/envoy/envoy.yaml
       - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - "443:443"        # Port for HTTPS traffic
@@ -19,7 +19,7 @@ services:
       - development
     image: envoyproxy/envoy:latest
     volumes:
-      - ./envoy/envoy-development.yaml:/etc/envoy/envoy.yaml
+      - ../envoy/envoy-development.yaml:/etc/envoy/envoy.yaml
     labels:
       - "com.simulshift.description=Envoy Development Build"
       - "com.simulshift.version=1.0.0-dev"
