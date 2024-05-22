@@ -8,7 +8,8 @@ services:
     build:
       context: ${SIMULCHATBOT_PATH} # Directory containing Dockerfile.chatbot
     ports:
-      - "8080:8080" # Map port 8080 for REST API
+      - "8080:8082" # Map port for express server
+      - "8083:8083" # Map port for fastify server
       - "9090:9090" # Map port 9090 for Main GRPC
       - "9095:9095" # Map port 9095 for Waifu GRPC
     volumes:
