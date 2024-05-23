@@ -33,29 +33,23 @@ func DockerCli() {
 	downFlag := flag.Bool("down", false, "to docker compose down")
 	// clean flag
 	cleanFlag := flag.Bool("clean", false, "to clean the docker images")
+	profileFlag := flag.String("profile", "development", "profile to use")
 	flag.Parse()
-
-	log.Println("Down flag: ", *downFlag)
+	// create a new Docker instance
+	docker := egg.NewDocker()
+	// Validate the provided profile
+	if !slices.Contains(egg.ValidProfiles, egg.Profile(*profileFlag)) {
+		fmt.Println("Invalid profile provided")
+		os.Exit(1)
+	}
+	docker.SetProfile(egg.Profile(*profileFlag))
 	args := flag.Args()
-	log.Println("Args: ", args)
 
 	if len(args) < 1 {
 		fmt.Println("Usage: go run main.go <profile> or <profile, metaservice")
 		os.Exit(1)
 	}
-	// create a new Docker instance
-	docker := egg.NewDocker()
-	// Get the environment from the command line
-	profile := egg.Profile(args[0])
-	// Validate the provided profile
-	if !slices.Contains(egg.ValidProfiles, profile) {
-		fmt.Println("Invalid profile provided")
-		os.Exit(1)
-	}
-
-	docker.SetProfile(profile)
-	// check if 2nd argument is provided
-	if len(args) > 1 {
+	if len(args) > 0 {
 		// Get the metaservice from the command line
 		metaservice := egg.MetaService(args[1])
 		// Check if metaservice is key in the map
