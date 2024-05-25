@@ -21,4 +21,4 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no user@remote_server 'cd ~/simulploy && git pull'
+          ssh -o StrictHostKeyChecking=no x@146.190.199.222 'cd ~/simulploy && git pull'
