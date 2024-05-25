@@ -6,7 +6,7 @@ services:
       - linux
     image: envoyproxy/envoy:v1.30-latest
     volumes:
-      - ../envoy/envoy_production.yaml:/etc/envoy/envoy.yaml
+      - ${ENVOY_PATH_PRODUCTION}/envoy_production.yaml:/etc/envoy/envoy.yaml
       - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - "443:443"        # Port for HTTPS traffic

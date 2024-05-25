@@ -55,9 +55,9 @@ static_resources:
               common_tls_context:
                 tls_certificates:
                   - certificate_chain:
-                      filename: "/etc/letsencrypt/live/simulshift.com/cert.pem"
+                      filename: "/etc/letsencrypt/live/backend.simulshift.com/cert.pem"
                     private_key:
-                      filename: "/etc/letsencrypt/live/simulshift.com/privkey.pem"
+                      filename: "/etc/letsencrypt/live/backend.simulshift.com/privkey.pem"
 
     - name: listener_1
       address:
