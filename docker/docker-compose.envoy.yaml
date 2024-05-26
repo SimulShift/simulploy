@@ -17,6 +17,7 @@ services:
 #    environment:
 #      - ENVOY_UID=0 # this works to run the scripts
     entrypoint: [ "/bin/sh", "-c", "/usr/local/bin/start-envoy.sh" ]
+    command: [ "envoy", "-c", "/etc/envoy/envoy.yaml" ]
   envoy-dev-windows:
     profiles:
       - windows

@@ -22,4 +22,7 @@ chown -R 101:101 "$DEST_DIR"
 # List the copied files after changing ownership
 ls -l "$DEST_DIR"
 
+# print arguments
+echo "Arguments: $@"
+
 exec /docker-entrypoint.sh "$@"
