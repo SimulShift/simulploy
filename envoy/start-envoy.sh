@@ -8,7 +8,7 @@ set -e
 
 # Define the source and destination directories
 SRC_DIR="/etc/letsencrypt"
-DEST_DIR="/tmp/letsencrypt"
+DEST_DIR="/tmp"
 
 # Print files in source directory before copying
 echo "Files in source directory ($SRC_DIR) before copying:"
