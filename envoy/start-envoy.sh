@@ -19,5 +19,12 @@ cp -r "$SRC_DIR"/* "$DEST_DIR"/
 # Change the ownership of the copied files
 chown -R 101:101 "$DEST_DIR"
 
-# Execute Envoy
-exec envoy -c /etc/envoy/envoy.yaml
+# List the copied files after changing ownership
+ls -l "$DEST_DIR"
+
+# Execute the default entrypoint script as the specified user
+if [ "$(id -u)" = 0 ]; then
+    exec su-exec envoy /docker-entrypoint.sh "$@"
+else
+    exec /docker-entrypoint.sh "$@"
+fi
