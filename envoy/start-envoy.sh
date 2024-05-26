@@ -23,6 +23,6 @@ chown -R 101:101 "$DEST_DIR"
 ls -l "$DEST_DIR"
 
 # print arguments
-echo "Arguments: $@"
+echo "Arguments: $*"
 
-exec /docker-entrypoint.sh "$@"
+exec /docker-entrypoint.sh "${@}"
