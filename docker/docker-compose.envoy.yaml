@@ -16,7 +16,7 @@ services:
     restart: no
 #    environment:
 #      - ENVOY_UID=0 # this works to run the scripts
-    #entrypoint: [ "/bin/sh", "-c", "/usr/local/bin/start-envoy.sh" ]
+    entrypoint: [ "/bin/sh", "-c", "/usr/local/bin/start-envoy.sh" ]
   envoy-dev-windows:
     profiles:
       - windows

@@ -19,5 +19,8 @@ cp -r "$SRC_DIR"/* "$DEST_DIR"/
 # Change the ownership of the copied files
 chown -R 101:101 "$DEST_DIR"
 
+# pause indefinitely
+sleep infinity
+
 # Execute Envoy
 exec envoy -c /etc/envoy/envoy.yaml
