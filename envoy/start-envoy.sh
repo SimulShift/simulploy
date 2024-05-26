@@ -10,6 +10,10 @@ set -e
 SRC_DIR="/etc/letsencrypt/live/backend.simulshift.com"
 DEST_DIR="/tmp/letsencrypt/live/backend.simulshift.com"
 
+# Print files in source directory before copying
+echo "Files in source directory ($SRC_DIR) before copying:"
+ls -l "$SRC_DIR"
+
 # Create the destination directory
 mkdir -p "$DEST_DIR"
 
@@ -20,7 +24,7 @@ cp -r "$SRC_DIR"/* "$DEST_DIR"/
 chown -R 101:101 "$DEST_DIR"
 
 # List the copied files after changing ownership
-echo "Files in destination directory ($DEST_DIR):"
+echo "Files in destination directory ($DEST_DIR) after copying:"
 ls -l "$DEST_DIR"
 
 # Check if privkey.pem exists in the destination directory
