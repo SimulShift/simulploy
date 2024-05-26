@@ -14,7 +14,7 @@ services:
       - "9901:9901"      # Port for Envoy's admin interface
       - "9902:9902"      # Port for rest api
     restart: no
-    environment:
+    #environment:
       #- ENVOY_UID=0 # this works to run the scripts
       #- ENVOY_GID=101 # this works to run the scripts
     entrypoint: [ "/usr/local/bin/start-envoy.sh" ]

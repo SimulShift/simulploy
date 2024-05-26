@@ -22,6 +22,17 @@ chown -R 101:101 "$DEST_DIR"
 # List the copied files after changing ownership
 ls -l "$DEST_DIR"
 
+# Check permissions and ownership of the private key file
+PRIVATE_KEY="$DEST_DIR/privkey.pem"
+echo "Checking permissions and ownership of $PRIVATE_KEY:"
+ls -l "$PRIVATE_KEY"
+echo "Running 'stat' command on $PRIVATE_KEY:"
+stat "$PRIVATE_KEY"
+
+# Print the content of the private key file
+echo "Content of $PRIVATE_KEY:"
+cat "$PRIVATE_KEY"
+
 # print arguments
 echo "Arguments: $*"
 
