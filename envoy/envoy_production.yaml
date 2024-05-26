@@ -55,9 +55,10 @@ static_resources:
               common_tls_context:
                 tls_certificates:
                   - certificate_chain:
-                      filename: "/etc/letsencrypt/live/backend.simulshift.com/cert.pem"
+                      filename: "/tmp/letsencrypt/live/backend.simulshift.com/fullchain.pem"
                     private_key:
-                      filename: "/etc/letsencrypt/live/backend.simulshift.com/privkey.pem"
+                      #filename: "/etc/letsencrypt/live/backend.simulshift.com/privkey.pem"
+                      filename: "/tmp/letsencrypt/live/backend.simulshift.com/privkey.pem"
 
     - name: listener_1
       address:
@@ -103,9 +104,11 @@ static_resources:
               common_tls_context:
                 tls_certificates:
                   - certificate_chain:
-                      filename: "/etc/letsencrypt/live/backend.simulshift.com/fullchain.pem"
+                      #filename: "/etc/letsencrypt/live/backend.simulshift.com/fullchain.pem"
+                      filename: "/tmp/letsencrypt/live/backend.simulshift.com/fullchain.pem"
                     private_key:
-                      filename: "/etc/letsencrypt/live/backend.simulshift.com/privkey.pem"
+                      #filename: "/etc/letsencrypt/live/backend.simulshift.com/privkey.pem"
+                      filename: "/tmp/letsencrypt/live/backend.simulshift.com/privkey.pem"
 
   clusters:
     - name: grpc_service

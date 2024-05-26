@@ -14,7 +14,9 @@ services:
       - "9901:9901"      # Port for Envoy's admin interface
       - "9902:9902"      # Port for rest api
     restart: no
-    entrypoint: [ "/bin/sh", "-c", "/usr/local/bin/start-envoy.sh" ]
+#    environment:
+#      - ENVOY_UID=0 # this works to run the scripts
+    #entrypoint: [ "/bin/sh", "-c", "/usr/local/bin/start-envoy.sh" ]
   envoy-dev-windows:
     profiles:
       - windows
