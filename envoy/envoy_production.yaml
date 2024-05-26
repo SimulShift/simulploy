@@ -200,6 +200,7 @@ static_resources:
       connect_timeout: 0.25s
       type: logical_dns
       lb_policy: round_robin
+      http2_protocol_options: { }  # Enable HTTP/2 support
       load_assignment:
         cluster_name: fastify_service
         endpoints:

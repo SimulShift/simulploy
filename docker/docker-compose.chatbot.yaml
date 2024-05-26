@@ -17,7 +17,7 @@ services:
     # Optional: Define commands or override the CMD defined in Dockerfile.chatbot
     command: "node dist/Runner.js --start-fastify"
     env_file:
-      - ${SIMULCHATBOT_PATH}/.env # Path to your .env file
+      - ../chatbot/.env
     networks:
       - envoy-network
 networks:
