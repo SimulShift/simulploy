@@ -22,6 +22,8 @@ chown -R 101:101 "$DEST_DIR"
 # List the copied files after changing ownership
 ls -l "$DEST_DIR"
 
+sleep infinity
+
 # Execute the default entrypoint script as the specified user
 if [ "$(id -u)" = 0 ]; then
     exec su-exec envoy /docker-entrypoint.sh "$@"
