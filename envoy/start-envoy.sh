@@ -51,7 +51,5 @@ ENVOY_GID=$(echo "$ENVOY_INFO" | cut -d: -f4)
 echo "envoy user UID: $ENVOY_UID"
 echo "envoy user GID: $ENVOY_GID"
 
-sleep infinity
-
 # Execute the command as envoy user
 su-exec envoy "$@"
