@@ -24,9 +24,4 @@ ls -l "$DEST_DIR"
 
 sleep infinity
 
-# Execute the default entrypoint script as the specified user
-if [ "$(id -u)" = 0 ]; then
-    exec su-exec envoy /docker-entrypoint.sh "$@"
-else
-    exec /docker-entrypoint.sh "$@"
-fi
+exec /docker-entrypoint.sh "$@"
