@@ -31,12 +31,25 @@ ls -l "$DEST_DIR"
 # Change the ownership of the copied directory and its contents
 chown -R 101:101 "$DEST_DIR"
 
-# List the copied directory and its contents after changing ownership
-echo "Files in destination directory ($DEST_DIR) after changing ownership:"
-ls -lR "$DEST_DIR"
-
 # print arguments
 echo "Arguments: $*"
+
+# Define the envoy user
+ENVOY_USER="envoy"
+
+# Check what user envoy is set to
+ENVOY_INFO=$(getent passwd "$ENVOY_USER" || true)
+
+# Print information about the envoy user
+echo "Information about the envoy user:"
+echo "$ENVOY_INFO"
+
+# Extract UID and GID from the envoy user information
+ENVOY_UID=$(echo "$ENVOY_INFO" | cut -d: -f3)
+ENVOY_GID=$(echo "$ENVOY_INFO" | cut -d: -f4)
+
+echo "envoy user UID: $ENVOY_UID"
+echo "envoy user GID: $ENVOY_GID"
 
 # Execute the command as envoy user
 su-exec envoy "$@"
