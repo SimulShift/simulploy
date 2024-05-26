@@ -6,13 +6,15 @@ services:
       - linux
     image: envoyproxy/envoy:v1.30-latest
     volumes:
-      - ${ENVOY_PATH_PRODUCTION}/envoy_production.yaml:/etc/envoy/envoy.yaml
       - /etc/letsencrypt:/etc/letsencrypt
+      - ${ENVOY_PATH_PRODUCTION}/start-envoy.sh:/usr/local/bin/start-envoy.sh
+      - ${ENVOY_PATH_PRODUCTION}/envoy_production.yaml:/etc/envoy/envoy.yaml
     ports:
       - "443:443"        # Port for HTTPS traffic
       - "9901:9901"      # Port for Envoy's admin interface
       - "9902:9902"      # Port for rest api
-    restart: unless-stopped
+    restart: no
+    entrypoint: [ "/bin/sh", "-c", "/usr/local/bin/start-envoy.sh" ]
   envoy-dev-windows:
     profiles:
       - windows
