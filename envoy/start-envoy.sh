@@ -51,5 +51,8 @@ ENVOY_GID=$(echo "$ENVOY_INFO" | cut -d: -f4)
 echo "envoy user UID: $ENVOY_UID"
 echo "envoy user GID: $ENVOY_GID"
 
+# Ensure the envoy user is able to write to container logs
+chown envoy:envoy /dev/stdout /dev/stderr
+
 # Execute the command as envoy user
 su-exec envoy "$@"
