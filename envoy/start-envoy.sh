@@ -25,4 +25,4 @@ ls -l "$DEST_DIR"
 # print arguments
 echo "Arguments: $*"
 
-exec /docker-entrypoint.sh "${@}"
+su-exec envoy "$@"
