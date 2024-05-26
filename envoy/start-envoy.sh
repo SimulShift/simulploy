@@ -22,6 +22,4 @@ chown -R 101:101 "$DEST_DIR"
 # List the copied files after changing ownership
 ls -l "$DEST_DIR"
 
-sleep infinity
-
 exec /docker-entrypoint.sh "$@"
