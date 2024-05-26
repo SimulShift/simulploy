@@ -20,18 +20,24 @@ cp -r "$SRC_DIR"/* "$DEST_DIR"/
 chown -R 101:101 "$DEST_DIR"
 
 # List the copied files after changing ownership
+echo "Files in destination directory ($DEST_DIR):"
 ls -l "$DEST_DIR"
 
-# Check permissions and ownership of the private key file
+# Check if privkey.pem exists in the destination directory
 PRIVATE_KEY="$DEST_DIR/privkey.pem"
-echo "Checking permissions and ownership of $PRIVATE_KEY:"
-ls -l "$PRIVATE_KEY"
-echo "Running 'stat' command on $PRIVATE_KEY:"
-stat "$PRIVATE_KEY"
-
-# Print the content of the private key file
-echo "Content of $PRIVATE_KEY:"
-cat "$PRIVATE_KEY"
+if [ -f "$PRIVATE_KEY" ]; then
+    echo "Privkey file exists: $PRIVATE_KEY"
+    # Check permissions and ownership of the private key file
+    echo "Checking permissions and ownership of $PRIVATE_KEY:"
+    ls -l "$PRIVATE_KEY"
+    echo "Running 'stat' command on $PRIVATE_KEY:"
+    stat "$PRIVATE_KEY"
+    # Print the content of the private key file
+    echo "Content of $PRIVATE_KEY:"
+    cat "$PRIVATE_KEY"
+else
+    echo "Error: Privkey file does not exist: $PRIVATE_KEY"
+fi
 
 # print arguments
 echo "Arguments: $*"
