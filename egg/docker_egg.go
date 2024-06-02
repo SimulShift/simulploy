@@ -3,21 +3,14 @@ package egg
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"slices"
 )
 
+// BasePath imported via ldflags
 var PostgresYaml = "docker/docker-compose.postgres.yaml"
 var EnvoyYaml = "docker/docker-compose.envoy.yaml"
 var ChatbotYaml = "docker/docker-compose.chatbot.yaml"
-
-// ServiceYamlMap map of services to their respective docker-compose files
-var ServiceYamlMap = map[Service]string{
-	PostgresDev:     PostgresYaml,
-	PostgresProd:    PostgresYaml,
-	EnvoyDevWindows: EnvoyYaml,
-	EnvoyProd:       EnvoyYaml,
-	ChatbotProd:     ChatbotYaml,
-}
 
 // MetaserviceToYaml Map meta services to file
 var MetaserviceToYaml = map[MetaService]string{
@@ -35,6 +28,14 @@ const (
 	Chatbot  MetaService = "chatbot"
 )
 
+// ValidMetaServices Valid MetaServices
+var ValidMetaServices = []MetaService{
+	Unset,
+	Postgres,
+	Envoy,
+	Chatbot,
+}
+
 type Profile string
 
 const (
@@ -46,30 +47,16 @@ const (
 
 // ValidProfiles Define an array of valid profiles
 var ValidProfiles = []Profile{
-	ProfileUnset, // You can include this if it's a valid profile to use
+	ProfileUnset,
 	Development,
 	Production,
 	Linux,
 }
 
-type Service string
-
-const (
-	ServiceUnset    Service = "unset"
-	PostgresDev     Service = "postgres-dev"
-	PostgresProd    Service = "postgres-prod"
-	EnvoyProd       Service = "envoy-prod"
-	EnvoyDevWindows Service = "envoy-dev-windows"
-	ChatbotProd     Service = "chatbot-prod"
-)
-
-// ValidServices Define an array of valid services
-var ValidServices = []Service{
-	ServiceUnset, // You can include this if it's a valid services to use
-	PostgresDev,
-	PostgresProd,
-	EnvoyProd,
-	EnvoyDevWindows,
+var Profiles = []string{
+	"development",
+	"production",
+	"linux",
 }
 
 type Direction string
@@ -83,25 +70,34 @@ const (
 // Docker handles Docker Compose operations.
 type Docker struct {
 	egg         *Egg
-	services    []Service
 	profile     Profile
 	MetaService MetaService
 	Direction   Direction
 	clean       bool
+	drop        bool
 }
 
 // NewDocker creates a manager for Docker services.
-func NewDocker() *Docker {
-	executor := NewEgg(os.Stdout)
-	executor.AddArg("compose")
+func NewDocker(dockerDir string) *Docker {
+	PostgresYaml = filepath.Join(dockerDir, "docker-compose.postgres.yaml")
+	EnvoyYaml = filepath.Join(dockerDir, "docker-compose.envoy.yaml")
+	ChatbotYaml = filepath.Join(dockerDir, "docker-compose.chatbot.yaml")
+	MetaserviceToYaml = map[MetaService]string{
+		Postgres: PostgresYaml,
+		Envoy:    EnvoyYaml,
+		Chatbot:  ChatbotYaml,
+	}
+
+	egg := NewEgg(os.Stdout)
+	egg.AddArg("compose")
 
 	return &Docker{
-		egg:         executor,
-		services:    make([]Service, 0), // empty slice
+		egg:         egg,
 		profile:     ProfileUnset,
 		MetaService: Unset,
 		Direction:   DirectionUnset,
 		clean:       false,
+		drop:        false,
 	}
 }
 
@@ -113,6 +109,10 @@ func (docker *Docker) addYamlIfNotAlreadyAdded(yaml string) {
 }
 
 func (docker *Docker) SetMetaService(metaservice MetaService) *Docker {
+	if metaservice == "" {
+		log.Println("Empty metaservice provided")
+		os.Exit(1)
+	}
 	// environment must first be set
 	if docker.profile == ProfileUnset {
 		log.Println("Profile must be set before setting metaservice")
@@ -127,16 +127,13 @@ func (docker *Docker) SetMetaService(metaservice MetaService) *Docker {
 	return docker
 }
 
-func (docker *Docker) AddService(service Service) *Docker {
-	docker.services = append(docker.services, service)
-	// get the docker-compose file for the services
-	if yaml, ok := ServiceYamlMap[service]; ok {
-		docker.addYamlIfNotAlreadyAdded(yaml)
-	}
-	return docker
-}
-
 func (docker *Docker) SetProfile(profile Profile) *Docker {
+	// set the profile
+	// validate the profile
+	if !slices.Contains(ValidProfiles, profile) {
+		log.Println("Invalid profile provided")
+		os.Exit(1)
+	}
 	docker.profile = profile
 	return docker
 }
@@ -144,6 +141,12 @@ func (docker *Docker) SetProfile(profile Profile) *Docker {
 // Clean sets the clean flag for the Docker Compose services.
 func (docker *Docker) Clean() *Docker {
 	docker.clean = true
+	return docker
+}
+
+// Drop sets the drop flag for the Docker Compose services.
+func (docker *Docker) Drop() *Docker {
+	docker.drop = true
 	return docker
 }
 
@@ -174,11 +177,6 @@ func (docker *Docker) AddDockerComposeFile(filepath string) *Docker {
 func (docker *Docker) Compose() {
 	docker.egg.SetPath("docker")
 
-	// add services
-	for _, service := range docker.services {
-		docker.egg.AddArg(string(service))
-	}
-
 	// set profile
 	if docker.profile == ProfileUnset {
 		log.Println("Profile must be set before running Docker Compose")
@@ -194,17 +192,15 @@ func (docker *Docker) Compose() {
 		docker.egg.AddArg(string(docker.Direction))
 	}
 
-	if os.Getenv("LOG_LEVEL") == "debug" {
-		log.Println("Running Docker Compose for: " + docker.egg.String())
-	}
+	log.Println("Running Docker Compose for: " + docker.egg.String())
 
 	if docker.clean {
-		if docker.MetaService == Postgres {
-			docker.DropDatabase()
-		} else {
-			docker.egg.AddArg("--rmi")
-			docker.egg.AddArg("all")
-		}
+		docker.egg.AddArg("--rmi")
+		docker.egg.AddArg("all")
+	}
+
+	if docker.drop {
+		docker.DropDatabase()
 	}
 
 	// run the egg

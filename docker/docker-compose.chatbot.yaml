@@ -1,5 +1,4 @@
 services:
-  # Chatbot
   chatbot-prod:
     image: alexpena/simulchatbot:latest
     profiles:
