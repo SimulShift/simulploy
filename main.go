@@ -1,6 +1,8 @@
 package main
 
-import "github.com/simulshift/simulploy/cli"
+import (
+	"github.com/simulshift/simulploy/cli"
+)
 
 func main() {
 	cli.Cli()

@@ -1,6 +1,7 @@
-package cli
+package cmd
 
 import (
+	"github.com/simulshift/simulploy/cli/config"
 	"github.com/simulshift/simulploy/egg"
 	"github.com/spf13/cobra"
 	"log"
@@ -13,10 +14,14 @@ var upCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("Running up command: ", profileFlag, metaservice)
 		// print docker dir
-		log.Println("Docker dir: ", Config.DockerDir)
-		egg.NewDocker(Config.DockerDir).
+		log.Println("Docker dir: ", config.MemoryStore.DockerDir)
+		egg.NewDocker(config.MemoryStore.DockerDir).
 			SetProfile(egg.Profile(profileFlag)).
 			SetMetaService(egg.MetaService(metaservice)).
 			Up().Compose()
 	},
+}
+
+func init() {
+	rootCmd.AddCommand(upCmd)
 }
