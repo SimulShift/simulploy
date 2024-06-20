@@ -140,6 +140,7 @@ func (docker *Docker) SetProfile(profile Profile) *Docker {
 
 // Clean sets the clean flag for the Docker Compose services.
 func (docker *Docker) Clean() *Docker {
+	docker.Down()
 	docker.clean = true
 	return docker
 }

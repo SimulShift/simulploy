@@ -24,7 +24,7 @@ var (
 
 func init() {
 	// Global flags available to all subcommands
-	rootCmd.PersistentFlags().StringVar(&profileFlag, "profile", "development", "profile to use")
+	rootCmd.PersistentFlags().StringVarP(&profileFlag, "profile", "p", "development", "profile to use")
 	if err := rootCmd.RegisterFlagCompletionFunc("profile", profileCompletionFunc); err != nil {
 		fmt.Println("Error registering flag completion for --profile:", err)
 		os.Exit(1)

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
@@ -31,7 +30,7 @@ func (config *ConfigType) Load() error {
 	}
 	defer file.Close()
 
-	if err := json.NewDecoder(file).Decode(&MemoryStore); err != nil {
+	if err := yaml.NewDecoder(file).Decode(&MemoryStore); err != nil {
 		return err
 	}
 	return nil
@@ -60,6 +59,6 @@ func (config *ConfigType) Save() error {
 func (config *ConfigType) ensureFilePath() {
 	if config.Filepath == "" {
 		homeDir, _ := os.UserHomeDir()
-		config.Filepath = filepath.Join(homeDir, ".simulploy")
+		config.Filepath = filepath.Join(homeDir, ".simulploy.yaml")
 	}
 }
