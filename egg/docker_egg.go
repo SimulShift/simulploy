@@ -75,6 +75,7 @@ type Docker struct {
 	Direction   Direction
 	clean       bool
 	drop        bool
+	detached    bool
 }
 
 // NewDocker creates a manager for Docker services.
@@ -98,6 +99,7 @@ func NewDocker(dockerDir string) *Docker {
 		Direction:   DirectionUnset,
 		clean:       false,
 		drop:        false,
+		detached:    false,
 	}
 }
 
@@ -164,7 +166,7 @@ func (docker *Docker) Down() *Docker {
 }
 
 func (docker *Docker) Detached() *Docker {
-	docker.egg.AddArg("-d")
+	docker.detached = true
 	return docker
 }
 
@@ -198,6 +200,10 @@ func (docker *Docker) Compose() {
 	if docker.clean {
 		docker.egg.AddArg("--rmi")
 		docker.egg.AddArg("all")
+	}
+
+	if docker.detached {
+		docker.egg.AddArg("-d")
 	}
 
 	if docker.drop {

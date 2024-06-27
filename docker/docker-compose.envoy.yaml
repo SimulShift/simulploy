@@ -27,8 +27,8 @@ services:
       - development
     image: envoyproxy/envoy:v1.30-latest
     volumes:
-      - ../envoy/envoy_development.yaml:/etc/envoy/envoy.yaml
-      #- /d/certs:/certs # for https yaml
+      - ../envoy/envoy_development_https.yaml:/etc/envoy/envoy.yaml
+      - /d/certs:/certs # for https yaml
     labels:
       - "com.simulshift.description=Envoy Development Build"
       - "com.simulshift.version=1.0.0-dev"
