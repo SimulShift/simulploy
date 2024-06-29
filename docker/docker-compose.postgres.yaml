@@ -18,7 +18,9 @@ services:
     profiles:
       - production
     image: postgres:latest
-    command: -c config_file=/etc/postgresql/postgresql.conf
+    command: >
+      -c config_file=/etc/postgresql/postgresql.conf
+      -c hba_file=/etc/postgresql/pg_hba.conf
     environment:
       POSTGRES_DB: simulshift.com
     volumes:

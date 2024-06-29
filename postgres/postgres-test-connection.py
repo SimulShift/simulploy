@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2 import OperationalError
 
+
 def create_connection(db_name, db_user, db_password, db_host, db_port):
     connection = None
     try:
@@ -16,7 +17,13 @@ def create_connection(db_name, db_user, db_password, db_host, db_port):
         print(f"The error '{e}' occurred")
     return connection
 
+
 # Replace the arguments with your server's details
-connection = create_connection("postgres", "postgres", "SuperPasswOrd1337420!", "146.190.199.222", "5432")
+testConn = create_connection("postgres", "postgres", "SuperPasswOrd1337420!", "146.190.199.222", "5432")
+# do a simple query
+cursor = testConn.cursor()
+cursor.execute("SELECT version();")
+record = cursor.fetchone()
+print("You are connected to - ", record, "\n")
 
 #postgresql://postgres:SuperPasswOrd1337420!@146.190.199.222:5432/simulshift.com
