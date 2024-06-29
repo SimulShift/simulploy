@@ -206,10 +206,6 @@ func (docker *Docker) Compose() {
 		docker.egg.AddArg("-d")
 	}
 
-	if docker.drop {
-		docker.DropDatabase()
-	}
-
 	// run the egg
 	if !docker.egg.Run() {
 		// log error
@@ -217,15 +213,15 @@ func (docker *Docker) Compose() {
 		os.Exit(1)
 	}
 
+	if docker.drop {
+		docker.DropDatabase()
+	}
 }
 
 func (docker *Docker) DropDatabase() {
 	// run "docker volume rm docker_postgres-data"
-	cleanEgg := NewEgg(os.Stdout)
-	cleanEgg.AddArg("docker")
-	cleanEgg.AddArg("volume")
-	cleanEgg.AddArg("rm")
-	cleanEgg.AddArg("docker_postgres-data")
+	cleanEgg := NewEgg(os.Stdout).SetSudo().SetPath("docker").
+		AddArg("volume").AddArg("rm").AddArg("docker_postgres-data")
 	if !cleanEgg.Run() {
 		os.Exit(1)
 	}
