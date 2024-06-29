@@ -12,7 +12,7 @@ services:
       - "5432:5432"
     restart: unless-stopped
     env_file:
-      - ../postgres/.env
+      - ../postgres/.env.development
 
   postgres-prod:
     profiles:
@@ -25,12 +25,12 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - /etc/letsencrypt/live/backend.simulshift.com/fullchain-docker.pem:/var/lib/postgresql/server.crt:ro
       - /etc/letsencrypt/live/backend.simulshift.com/privkey-docker.pem:/var/lib/postgresql/server.key:ro
-      - ./postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ${POSTGRES_PRODUCTION}/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ${POSTGRES_PRODUCTION}/pg_hba.conf:/etc/postgresql/pg_hba.conf
     ports:
       - "5432:5432"
     env_file:
-      - ../postgres/.env
+      - ../postgres/.env.production
 
 volumes:
   postgres-data:

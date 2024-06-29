@@ -31,7 +31,7 @@ func GetDockerComposeFiles(dockerDir string) []string {
 // LoadComposeFiles loads multiple Docker Compose files and merges them into a single project configuration.
 func LoadComposeFiles(files []string) *types.Project {
 	// Prepare a slice of ConfigFile structs from the list of filenames.
-	options, err := cli.NewProjectOptions(files, cli.WithProfiles(egg.Profiles), cli.WithEnvFiles("./docker/.env"), cli.WithDotEnv)
+	options, err := cli.NewProjectOptions(files, cli.WithProfiles(egg.Profiles), cli.WithEnvFiles("./docker/.env.development"), cli.WithDotEnv)
 	if err != nil {
 		log.Fatalf("Failed to create project options: %v", err)
 	}
