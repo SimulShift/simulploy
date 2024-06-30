@@ -2,15 +2,9 @@ package cli
 
 import (
 	"github.com/simulshift/simulploy/cli/cmd"
-	"github.com/simulshift/simulploy/cli/config"
-	"log"
+	_ "github.com/simulshift/simulploy/cli/cmd/db" // Import the db package to ensure its init() is called
 )
 
 func Cli() {
-	// try to load the configuration
-	err := config.MemoryStore.Load()
-	if err != nil {
-		log.Fatalf("Failed to load configuration: %v", err)
-	}
 	cmd.Execute()
 }

@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/simulshift/simulploy/cli/config"
 	"github.com/simulshift/simulploy/egg"
+	"github.com/simulshift/simulploy/simulConfig"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -15,8 +15,8 @@ var upCmd = &cobra.Command{
 		detach, _ := cmd.Flags().GetBool("detach")
 		log.Println("Running up command: ", profileFlag, metaservice)
 		// print docker dir
-		log.Println("Docker dir: ", config.MemoryStore.DockerDir)
-		dockerEgg := egg.NewDocker(config.MemoryStore.DockerDir).
+		log.Println("Docker dir: ", simulConfig.Get.DockerDir)
+		dockerEgg := egg.NewDocker(simulConfig.Get.DockerDir).
 			SetProfile(egg.Profile(profileFlag)).
 			SetMetaService(egg.MetaService(metaservice)).
 			Up()
@@ -28,6 +28,6 @@ var upCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(upCmd)
+	RootCmd.AddCommand(upCmd)
 	upCmd.Flags().BoolP("detach", "d", false, "Run in detached mode")
 }

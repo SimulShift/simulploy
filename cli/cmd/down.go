@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/simulshift/simulploy/cli/config"
 	"github.com/simulshift/simulploy/egg"
+	"github.com/simulshift/simulploy/simulConfig"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +14,7 @@ var downCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Compose down the Docker environments",
 	Run: func(cmd *cobra.Command, args []string) {
-		dockerEgg := egg.NewDocker(config.MemoryStore.DockerDir).
+		dockerEgg := egg.NewDocker(simulConfig.Get.DockerDir).
 			SetProfile(egg.Profile(profileFlag)).
 			SetMetaService(egg.MetaService(metaservice)).
 			Down()
@@ -27,5 +27,5 @@ var downCmd = &cobra.Command{
 
 func init() {
 	downCmd.Flags().BoolVar(&dropFlag, "drop", false, "Drop all resources (e.g., remove volumes and images)")
-	rootCmd.AddCommand(downCmd)
+	RootCmd.AddCommand(downCmd)
 }

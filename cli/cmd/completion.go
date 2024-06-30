@@ -13,10 +13,10 @@ var completionCmd = &cobra.Command{
 				To load completions for every new session, execute once:
 				simulploy completion > "${fpath[1]}/_dockercli"`,
 	Run: func(cmd *cobra.Command, args []string) {
-		rootCmd.GenZshCompletion(os.Stdout)
+		RootCmd.GenZshCompletion(os.Stdout)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(completionCmd)
+	RootCmd.AddCommand(completionCmd)
 }

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:   "simulploy",
 	Short: "Streamline docker compose commands",
 	Long:  `A docker wrapper application to manage docker environments.`,
@@ -24,31 +24,31 @@ var (
 
 func init() {
 	// Global flags available to all subcommands
-	rootCmd.PersistentFlags().StringVarP(&profileFlag, "profile", "p", "development", "profile to use")
-	if err := rootCmd.RegisterFlagCompletionFunc("profile", profileCompletionFunc); err != nil {
+	RootCmd.PersistentFlags().StringVarP(&profileFlag, "profile", "p", "development", "profile to use")
+	if err := RootCmd.RegisterFlagCompletionFunc("profile", profileCompletionFunc); err != nil {
 		fmt.Println("Error registering flag completion for --profile:", err)
 		os.Exit(1)
 	}
-	rootCmd.PersistentFlags().StringVarP(&metaservice, "metaservice", "m", "", "choose a metaservice")
+	RootCmd.PersistentFlags().StringVarP(&metaservice, "metaservice", "m", "", "choose a metaservice")
 	// Register the completion function
-	if err := rootCmd.RegisterFlagCompletionFunc("metaservice", metaserviceCompletion); err != nil {
+	if err := RootCmd.RegisterFlagCompletionFunc("metaservice", metaserviceCompletion); err != nil {
 		fmt.Fprintf(os.Stderr, "Error registering completion for 'metaservice': %v\n", err)
 		os.Exit(1)
 	}
-	carapace.Gen(rootCmd)
+	carapace.Gen(RootCmd)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// This is called by main.main(). It only needs to happen once to the RootCmd.
 func Execute() {
-	err := rootCmd.Execute()
+	err := RootCmd.Execute()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func profileCompletionFunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	// List of profiles, potentially could be fetched from a config file, service, etc.
+	// List of profiles, potentially could be fetched from a simulConfig file, service, etc.
 	var completions []string
 	for _, profile := range egg.ValidProfiles {
 		if strings.HasPrefix(string(profile), toComplete) {
