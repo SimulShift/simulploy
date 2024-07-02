@@ -86,7 +86,6 @@ static_resources:
                         allow_origin_string_match:
                           - exact: "https://fe.chatbot.localhost:3000"
                         allow_methods: GET, PUT, DELETE, POST, OPTIONS
-                        #allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,custom-header-1,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout
                         allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,custom-header-1,connect-protocol-version,connect-timeout-ms,grpc-timeout,x-grpc-web,x-user-agent
                         allow_credentials: true
                         max_age: "1728000"

@@ -3,7 +3,6 @@ package db
 import (
 	"github.com/simulshift/simulploy/cli/cmd"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 var dbCmd = &cobra.Command{
@@ -13,6 +12,5 @@ var dbCmd = &cobra.Command{
 }
 
 func init() {
-	log.Print("Initializing db command")
 	cmd.RootCmd.AddCommand(dbCmd)
 }
