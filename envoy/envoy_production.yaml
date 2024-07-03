@@ -3,6 +3,7 @@ admin:
     socket_address: { address: 0.0.0.0, port_value: 9901 }
 
 static_resources:
+  listeners:
     - name: listener_1
       address:
         socket_address: { address: 0.0.0.0, port_value: 443 }
@@ -21,7 +22,7 @@ static_resources:
                   name: local_route_443
                   virtual_hosts:
                     - name: fastify_service
-                      domains: ["*"]
+                      domains: [ "*" ]
                       routes:
                         - match: { prefix: "/" }
                           route:
@@ -111,28 +112,28 @@ static_resources:
                       #filename: "/etc/letsencrypt/live/backend.simulshift.com/privkey-envoy.pem"
                       filename: "/tmp/letsencrypt/live/backend.simulshift.com/privkey.pem"
 clusters:
-    - name: fastify_service
-      connect_timeout: 0.25s
-      type: logical_dns
-      lb_policy: round_robin
-      http2_protocol_options: { }  # Enable HTTP/2 support
-      load_assignment:
-        cluster_name: fastify_service
-        endpoints:
-          - lb_endpoints:
-              - endpoint:
-                  address:
-                    socket_address:
-                      address: docker-chatbot-prod-1
-                      port_value: 8080
-    - name: express_service
-      connect_timeout: 0.25s
-      type: logical_dns
-      lb_policy: round_robin
-      load_assignment:
-        cluster_name: express_service
-        endpoints:
-          - lb_endpoints:
+  - name: fastify_service
+    connect_timeout: 0.25s
+    type: logical_dns
+    lb_policy: round_robin
+    http2_protocol_options: { }  # Enable HTTP/2 support
+    load_assignment:
+      cluster_name: fastify_service
+      endpoints:
+        - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: docker-chatbot-prod-1
+                    port_value: 8080
+  - name: express_service
+    connect_timeout: 0.25s
+    type: logical_dns
+    lb_policy: round_robin
+    load_assignment:
+      cluster_name: express_service
+      endpoints:
+        - lb_endpoints:
             - endpoint:
                 address:
                   socket_address:
