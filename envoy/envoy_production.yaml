@@ -82,6 +82,7 @@ static_resources:
                       cors:
                         allow_origin_string_match:
                           - exact: "https://simulshift.com"
+                          - exact: "https://www.simulshift.com"
                         allow_methods: GET, PUT, DELETE, POST, OPTIONS
                         allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,custom-header-1,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout
                         allow_credentials: true
@@ -109,19 +110,6 @@ static_resources:
                     private_key:
                       #filename: "/etc/letsencrypt/live/backend.simulshift.com/privkey-envoy.pem"
                       filename: "/tmp/letsencrypt/live/backend.simulshift.com/privkey.pem"
-    - name: express_service
-      connect_timeout: 0.25s
-      type: logical_dns
-      lb_policy: round_robin
-      load_assignment:
-        cluster_name: express_service
-        endpoints:
-          - lb_endpoints:
-            - endpoint:
-                address:
-                  socket_address:
-                    address: 172.17.0.1
-                    port_value: 8082
     - name: fastify_service
       connect_timeout: 0.25s
       type: logical_dns
@@ -136,3 +124,16 @@ static_resources:
                     socket_address:
                       address: docker-chatbot-prod-1
                       port_value: 8080
+    - name: express_service
+      connect_timeout: 0.25s
+      type: logical_dns
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: express_service
+        endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 172.17.0.1
+                    port_value: 8082

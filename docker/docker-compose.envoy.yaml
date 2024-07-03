@@ -27,6 +27,7 @@ services:
       - development
     image: envoyproxy/envoy:v1.30-latest
     volumes:
+        # We need https for twitch callback
       - ../envoy/envoy_development_https.yaml:/etc/envoy/envoy.yaml
       - /d/certs:/certs # for https yaml
     labels:

@@ -84,7 +84,7 @@ static_resources:
                             cluster: fastify_service
                       cors:
                         allow_origin_string_match:
-                          - exact: "https://fe.chatbot.localhost:3000"
+                          - exact: "https://fe.simulshift.localhost:3000"
                         allow_methods: GET, PUT, DELETE, POST, OPTIONS
                         allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,custom-header-1,connect-protocol-version,connect-timeout-ms,grpc-timeout,x-grpc-web,x-user-agent
                         allow_credentials: true
@@ -108,19 +108,6 @@ static_resources:
                       filename: "/certs/localhost+4-key.pem"
 
   clusters:
-    - name: express_service
-      connect_timeout: 0.25s
-      type: logical_dns
-      lb_policy: round_robin
-      load_assignment:
-        cluster_name: express_service
-        endpoints:
-          - lb_endpoints:
-            - endpoint:
-                address:
-                  socket_address:
-                    address: host.docker.internal
-                    port_value: 8082
     - name: fastify_service
       connect_timeout: 0.25s
       type: logical_dns
@@ -134,4 +121,17 @@ static_resources:
                   address:
                     socket_address:
                       address: host.docker.internal
-                      port_value: 8083
+                      port_value: 8080
+    - name: express_service
+      connect_timeout: 0.25s
+      type: logical_dns
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: express_service
+        endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: host.docker.internal
+                    port_value: 8082
