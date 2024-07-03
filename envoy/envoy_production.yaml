@@ -30,6 +30,7 @@ static_resources:
                       cors:
                         allow_origin_string_match:
                           - exact: "https://simulshift.com"
+                          - exact: "https://www.simulshift.com"
                         allow_methods: GET, PUT, DELETE, POST, OPTIONS
                         allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,custom-header-1,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout
                         allow_credentials: true
