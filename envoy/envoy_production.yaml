@@ -110,6 +110,7 @@ static_resources:
                     private_key:
                       #filename: "/etc/letsencrypt/live/backend.simulshift.com/privkey-envoy.pem"
                       filename: "/tmp/letsencrypt/live/backend.simulshift.com/privkey.pem"
+clusters:
     - name: fastify_service
       connect_timeout: 0.25s
       type: logical_dns
