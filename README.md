@@ -14,8 +14,19 @@ cd simulploy
 Build and install the tool:
 
 ```bash
-make install
+go build -o simulploy
 ```
+
+## Configuration File
+
+Simulploy uses a configuration file named `.simulploy.yaml` located in the user's home directory. This file contains essential settings that define how Simulploy interacts with Docker environments.
+
+### Config File Setup
+
+Create the `.simulploy.yaml` file in your home directory:
+
+```plaintext
+C:\Users\YourUsername\.simulploy.yaml
 
 ## Usage
 
@@ -44,7 +55,7 @@ simulploy [command]
 **Start Docker environments:**
 
 ```bash
-simulploy up --profile production
+simulploy up --metaservice postgres --profile production
 ```
 
 **Generate Zsh completion script:**
@@ -56,7 +67,7 @@ simulploy completion
 **Clean Docker images for a profile:**
 
 ```bash
-simulploy clean --profile staging
+simulploy clean --metaservice postgres --profile staging
 ```
 
 ## Configuration
