@@ -7,17 +7,8 @@ import (
 	"slices"
 )
 
-// BasePath imported via ldflags
-var PostgresYaml = "docker/docker-compose.postgres.yaml"
-var EnvoyYaml = "docker/docker-compose.envoy.yaml"
-var ChatbotYaml = "docker/docker-compose.chatbot.yaml"
-
 // MetaserviceToYaml Map meta services to file
-var MetaserviceToYaml = map[MetaService]string{
-	Postgres: PostgresYaml,
-	Envoy:    EnvoyYaml,
-	Chatbot:  ChatbotYaml,
-}
+var MetaserviceToYaml = make(map[MetaService]string)
 
 type MetaService string
 
@@ -80,9 +71,10 @@ type Docker struct {
 
 // NewDocker creates a manager for Docker services.
 func NewDocker(dockerDir string) *Docker {
-	PostgresYaml = filepath.Join(dockerDir, "docker-compose.postgres.yaml")
-	EnvoyYaml = filepath.Join(dockerDir, "docker-compose.envoy.yaml")
-	ChatbotYaml = filepath.Join(dockerDir, "docker-compose.chatbot.yaml")
+	// TODO: automate this
+	PostgresYaml := filepath.Join(dockerDir, "docker-compose.postgres.yaml")
+	EnvoyYaml := filepath.Join(dockerDir, "docker-compose.envoy.yaml")
+	ChatbotYaml := filepath.Join(dockerDir, "docker-compose.chatbot.yaml")
 	MetaserviceToYaml = map[MetaService]string{
 		Postgres: PostgresYaml,
 		Envoy:    EnvoyYaml,
