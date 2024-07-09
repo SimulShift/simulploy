@@ -45,9 +45,9 @@ func New() *simulSsh {
 	}
 
 	// get ip from .env file
-	sshServerIp := os.Getenv("SSH_IP")
+	sshServerIp := os.Getenv("REMOTE_HOST")
 	if sshServerIp == "" {
-		log.Fatalf("SSH_IP not set")
+		log.Fatalf("REMOTE_HOST not set")
 	}
 
 	config := &ssh.ClientConfig{

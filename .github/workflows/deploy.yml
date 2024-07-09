@@ -13,12 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Load environment variables from .env
+        uses: aws-actions/aws-load-dotenv@v1
+        with:
+          path: .env
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          # added to authorized keys on droplet and gave the secret to Github actions
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_DROPLET }}
+
+      - name: Add remote server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ env.REMOTE_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no x@146.190.199.222 'cd ~/simulploy && git pull'
+          ssh ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }} "cd ${{ env.REMOTE_DIR }} && git pull"
