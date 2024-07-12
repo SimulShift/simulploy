@@ -1,54 +1,16 @@
 package egg
 
 import (
+	"github.com/simulshift/simulploy/docker_parser"
+	"github.com/simulshift/simulploy/simulConfig"
 	"log"
 	"os"
 	"path/filepath"
 	"slices"
 )
 
-// MetaserviceToYaml Map meta services to file
-var MetaserviceToYaml = make(map[MetaService]string)
-
-type MetaService string
-
-const (
-	Unset    MetaService = "unset"
-	Postgres MetaService = "postgres"
-	Envoy    MetaService = "envoy"
-	Chatbot  MetaService = "chatbot"
-)
-
-// ValidMetaServices Valid MetaServices
-var ValidMetaServices = []MetaService{
-	Unset,
-	Postgres,
-	Envoy,
-	Chatbot,
-}
-
-type Profile string
-
-const (
-	ProfileUnset Profile = "unset"
-	Development  Profile = "development"
-	Production   Profile = "production"
-	Linux        Profile = "linux"
-)
-
-// ValidProfiles Define an array of valid profiles
-var ValidProfiles = []Profile{
-	ProfileUnset,
-	Development,
-	Production,
-	Linux,
-}
-
-var Profiles = []string{
-	"development",
-	"production",
-	"linux",
-}
+var MetaserviceToYaml = make(map[string]string)
+var Profiles []string
 
 type Direction string
 
@@ -61,33 +23,48 @@ const (
 // Docker handles Docker Compose operations.
 type Docker struct {
 	egg         *Egg
-	profile     Profile
-	MetaService MetaService
+	profile     string
+	MetaService string
 	Direction   Direction
 	clean       bool
 	drop        bool
 	detached    bool
 }
 
-// NewDocker creates a manager for Docker services.
-func NewDocker(dockerDir string) *Docker {
-	// TODO: automate this
-	PostgresYaml := filepath.Join(dockerDir, "docker-compose.postgres.yaml")
-	EnvoyYaml := filepath.Join(dockerDir, "docker-compose.envoy.yaml")
-	ChatbotYaml := filepath.Join(dockerDir, "docker-compose.chatbot.yaml")
-	MetaserviceToYaml = map[MetaService]string{
-		Postgres: PostgresYaml,
-		Envoy:    EnvoyYaml,
-		Chatbot:  ChatbotYaml,
+// getAllKeyValues - gets all the keys and values from a map
+func getAllKeyValues(m map[string]string) ([]string, []string) {
+	var values []string
+	var keys []string
+	for key, value := range m {
+		keys = append(keys, key)
+		values = append(values, value)
 	}
+	return keys, values
+}
 
+// GetProfiles - gets the profiles defined in the yaml file
+func GetProfiles() []string {
+	// get list of yaml files from map
+	_, yamlFiles := getAllKeyValues(MetaserviceToYaml)
+	project := docker_parser.LoadComposeFiles(yamlFiles)
+	Profiles = project.Profiles
+	return Profiles
+}
+
+// NewDocker creates a manager for Docker services.
+func NewDocker() *Docker {
+	simulConfig.Get.Hydrate()
+	dockerDir := simulConfig.Get.DockerDir
+	for _, metaservice := range simulConfig.Get.Metaservices {
+		MetaserviceToYaml[metaservice] = filepath.Join(dockerDir, metaservice+".docker-compose.yaml")
+	}
+	GetProfiles()
 	egg := NewEgg(os.Stdout)
 	egg.AddArg("compose")
-
 	return &Docker{
 		egg:         egg,
-		profile:     ProfileUnset,
-		MetaService: Unset,
+		profile:     "",
+		MetaService: "",
 		Direction:   DirectionUnset,
 		clean:       false,
 		drop:        false,
@@ -102,13 +79,13 @@ func (docker *Docker) addYamlIfNotAlreadyAdded(yaml string) {
 	}
 }
 
-func (docker *Docker) SetMetaService(metaservice MetaService) *Docker {
+func (docker *Docker) SetMetaService(metaservice string) *Docker {
 	if metaservice == "" {
 		log.Println("Empty metaservice provided")
 		os.Exit(1)
 	}
 	// environment must first be set
-	if docker.profile == ProfileUnset {
+	if docker.profile == "" {
 		log.Println("Profile must be set before setting metaservice")
 		os.Exit(1)
 	}
@@ -121,10 +98,10 @@ func (docker *Docker) SetMetaService(metaservice MetaService) *Docker {
 	return docker
 }
 
-func (docker *Docker) SetProfile(profile Profile) *Docker {
+func (docker *Docker) SetProfile(profile string) *Docker {
 	// set the profile
 	// validate the profile
-	if !slices.Contains(ValidProfiles, profile) {
+	if !slices.Contains(Profiles, profile) {
 		log.Println("Invalid profile provided")
 		os.Exit(1)
 	}
@@ -173,7 +150,7 @@ func (docker *Docker) Compose() {
 	docker.egg.SetPath("docker")
 
 	// set profile
-	if docker.profile == ProfileUnset {
+	if docker.profile == "" {
 		log.Println("Profile must be set before running Docker Compose")
 		os.Exit(1)
 	}

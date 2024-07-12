@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/simulshift/simulploy/egg"
-	"github.com/simulshift/simulploy/simulConfig"
 	"github.com/spf13/cobra"
 )
 
@@ -14,9 +13,10 @@ var downCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Compose down the Docker environments",
 	Run: func(cmd *cobra.Command, args []string) {
-		dockerEgg := egg.NewDocker(simulConfig.Get.DockerDir).
-			SetProfile(egg.Profile(profileFlag)).
-			SetMetaService(egg.MetaService(metaservice)).
+		profile := GetProfile()
+		dockerEgg := egg.NewDocker().
+			SetProfile(profile).
+			SetMetaService(metaservice).
 			Down()
 		if dropFlag {
 			dockerEgg.Drop()

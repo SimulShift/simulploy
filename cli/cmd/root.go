@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/carapace-sh/carapace"
 	"github.com/simulshift/simulploy/egg"
+	"github.com/simulshift/simulploy/simulConfig"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -20,9 +21,13 @@ var RootCmd = &cobra.Command{
 var (
 	profileFlag string
 	metaservice string
+	devMode     bool
+	prodMode    bool
 )
 
 func init() {
+	simulConfig.Get.Hydrate()
+
 	// Global flags available to all subcommands
 	RootCmd.PersistentFlags().StringVarP(&profileFlag, "profile", "p", "development", "profile to use")
 	if err := RootCmd.RegisterFlagCompletionFunc("profile", profileCompletionFunc); err != nil {
@@ -35,6 +40,15 @@ func init() {
 		fmt.Fprintf(os.Stderr, "Error registering completion for 'metaservice': %v\n", err)
 		os.Exit(1)
 	}
+	RootCmd.PersistentFlags().BoolVarP(&devMode, "dev", "D", false, "development build")
+	RootCmd.PersistentFlags().BoolVarP(&prodMode, "prod", "P", false, "production build")
+	// check to make sure that only one mode is selected
+	RootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		if devMode && prodMode {
+			log.Fatal("Cannot specify both development and production mode")
+		}
+	}
+
 	carapace.Gen(RootCmd)
 }
 
@@ -50,8 +64,8 @@ func Execute() {
 func profileCompletionFunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	// List of profiles, potentially could be fetched from a simulConfig file, service, etc.
 	var completions []string
-	for _, profile := range egg.ValidProfiles {
-		if strings.HasPrefix(string(profile), toComplete) {
+	for _, profile := range egg.Profiles {
+		if strings.HasPrefix(profile, toComplete) {
 			completions = append(completions, string(profile))
 		}
 	}
@@ -60,13 +74,22 @@ func profileCompletionFunc(cmd *cobra.Command, args []string, toComplete string)
 
 // metaserviceCompletion will provide autocomplete function for the metaservice flag
 func metaserviceCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	// Filter based on prefix match
 	var completions []string
-	for _, service := range egg.ValidMetaServices {
-		if strings.HasPrefix(string(service), toComplete) {
-			completions = append(completions, string(service))
+	for _, service := range simulConfig.Get.Metaservices {
+		if strings.HasPrefix(service, toComplete) {
+			completions = append(completions, service)
 		}
 	}
 	// NoFileComp suggests that the shell should not attempt file name completion.
 	return completions, cobra.ShellCompDirectiveNoFileComp
+}
+
+func GetProfile() string {
+	if devMode {
+		return "development"
+	}
+	if prodMode {
+		return "production"
+	}
+	return profileFlag
 }
