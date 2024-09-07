@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/simulshift/simulploy/egg"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 // Subcommand to bring up Docker
@@ -11,6 +12,7 @@ var upCmd = &cobra.Command{
 	Short: "Bring up Docker environments",
 	Run: func(cmd *cobra.Command, args []string) {
 		detach, _ := cmd.Flags().GetBool("detach")
+		log.Println("Metaservice: ", metaservice)
 		profile := GetProfile()
 		dockerEgg := egg.NewDocker().
 			SetProfile(profile).

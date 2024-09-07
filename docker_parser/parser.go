@@ -40,7 +40,7 @@ func GetDockerComposeFiles(dockerDir string) []string {
 
 // LoadComposeFilesWithProfiles loads multiple Docker Compose files and merges them into a single project configuration.
 func LoadComposeFilesWithProfiles(files []string, profiles []string) *types.Project {
-	envPath := filepath.Join(simulConfig.Get.DockerDir, ".env")
+	envPath := filepath.Join(simulConfig.Get.DockerConfigs, "docker-compose", ".env")
 	log.Println("envPath: ", envPath)
 	options, err := cli.NewProjectOptions(files, cli.WithEnvFiles(envPath), cli.WithProfiles(profiles), cli.WithDotEnv)
 	if err != nil {

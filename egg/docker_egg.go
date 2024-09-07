@@ -1,10 +1,13 @@
 package egg
 
 import (
+	"fmt"
 	"github.com/simulshift/simulploy/docker_parser"
 	"github.com/simulshift/simulploy/simulConfig"
+	"github.com/simulshift/simulploy/simulSsh"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 )
@@ -54,9 +57,9 @@ func GetProfiles() []string {
 // NewDocker creates a manager for Docker services.
 func NewDocker() *Docker {
 	simulConfig.Get.Hydrate()
-	dockerDir := simulConfig.Get.DockerDir
+	dockerDir := simulConfig.Get.DockerConfigs
 	for _, metaservice := range simulConfig.Get.Metaservices {
-		MetaserviceToYaml[metaservice] = filepath.Join(dockerDir, metaservice+".docker-compose.yaml")
+		MetaserviceToYaml[metaservice] = filepath.Join(dockerDir, "docker-compose", metaservice+".docker-compose.yaml")
 	}
 	GetProfiles()
 	egg := NewEgg(os.Stdout)
@@ -93,7 +96,9 @@ func (docker *Docker) SetMetaService(metaservice string) *Docker {
 		log.Println("Invalid metaservice provided")
 		os.Exit(1)
 	}
-	log.Println("Setting metaservice: ", MetaserviceToYaml[metaservice])
+	log.Println("Setting metaservice: ", metaservice)
+	docker.MetaService = metaservice
+	log.Println("Adding yaml for metaservice: ", MetaserviceToYaml[metaservice])
 	docker.addYamlIfNotAlreadyAdded(MetaserviceToYaml[metaservice])
 	return docker
 }
@@ -175,6 +180,12 @@ func (docker *Docker) Compose() {
 		docker.egg.AddArg("-d")
 	}
 
+	// TODO (alex): Clean up/automate
+	if docker.profile == "production" && docker.MetaService == "envoy" && docker.Direction == Up {
+		log.Println("Wiring volume folder for envoy")
+		docker.WireVolumeFolder(docker.MetaService)
+	}
+
 	// run the egg
 	if !docker.egg.Run() {
 		// log error
@@ -187,7 +198,57 @@ func (docker *Docker) Compose() {
 	}
 }
 
+func (docker *Docker) WireVolumeFolder(metaservice string) {
+	// get config
+	simulConfig.Get.Hydrate()
+	remoteUser := simulConfig.Get.SshUser
+	remoteHost := simulConfig.Get.RemoteHost
+	remoteVolumeFolder := "/home/x/volumes/"
+	metaserviceFolder := remoteVolumeFolder + "/" + metaservice
+	localEnvoyPath := simulConfig.Get.DockerConfigs + "/envoy"
+	keyPath := filepath.Join(os.Getenv("USERPROFILE"), ".ssh", "id_ed25519")
+	// Use scp to copy the entire folder to the remote server, specifying the private key
+	// first make sure directory exists
+	sshClient := simulSsh.New() // Create SSH connection
+	defer sshClient.Close()
+
+	// Step 1: Remove the remote directory if it exists
+	deleteCmd := fmt.Sprintf("rm -rf %s", metaserviceFolder)
+	_, err := sshClient.Exec(deleteCmd) // Use SSH client to execute
+	if err != nil {
+		log.Fatalf("Failed to remove remote directory: %v", err)
+	}
+
+	err = sshClient.EnsureRemoteDirExists(metaserviceFolder)
+	if err != nil {
+		log.Fatalf("Failed to create remote directory: %v", err)
+	}
+
+	cmd := exec.Command("scp", "-r", "-i", keyPath,
+		localEnvoyPath, // source directory
+		fmt.Sprintf("%s@%s:%s", remoteUser, remoteHost, remoteVolumeFolder))
+
+	// Capture the output of scp for logging purposes
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatalf("Failed to scp envoy folder: %v\nOutput: %s", err, string(output))
+	} else {
+		log.Printf("Successfully copied envoy folder. Output: %s", string(output))
+	}
+
+	// Apply dos2unix to all files in the envoy directory
+	err = sshClient.ApplyDos2UnixRemote(remoteVolumeFolder)
+	if err != nil {
+		log.Fatalf("Failed to run dos2unix on all files: %v", err)
+	}
+}
+
 func (docker *Docker) DropDatabase() {
+	// only if the profile is postgres
+	if docker.profile != "postgres" {
+		log.Println("Profile is not postgres")
+		return
+	}
 	// run "docker volume rm docker_postgres-data"
 	cleanEgg := NewEgg(os.Stdout).SetSudo().SetPath("docker").
 		AddArg("volume").AddArg("rm").AddArg("docker_postgres-data")

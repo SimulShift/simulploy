@@ -8,18 +8,23 @@ import (
 
 type SimulConfig struct {
 	Filepath      string   `json:"filepath" yaml:"filepath"`             // path to the configuration file
-	DockerDir     string   `json:"docker_dir" yaml:"docker_dir"`         // default directory for Docker operations
+	DockerConfigs string   `json:"docker_dir" yaml:"docker_configs"`     // default directory for Docker operations
 	ProjectRoot   string   `json:"project_root" yaml:"project_root"`     // default project root
 	DockerNetwork string   `json:"docker_network" yaml:"docker_network"` // default Docker network
 	Metaservices  []string `json:"metaservices" yaml:"metaservices"`     // default meta services
+	// for ssh connection
+	SshUser    string `json:"ssh_user" yaml:"ssh_user"`       // default ssh user
+	RemoteHost string `json:"remote_host" yaml:"remote_host"` // default remote host
 }
 
 var Get = &SimulConfig{
 	Filepath:      "",
-	DockerDir:     ".",
+	DockerConfigs: ".",
 	ProjectRoot:   ".",
 	DockerNetwork: "",
 	Metaservices:  []string{},
+	SshUser:       "",
+	RemoteHost:    "",
 }
 
 func (config *SimulConfig) Hydrate() error {
